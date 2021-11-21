@@ -16,6 +16,7 @@
         height: 300,
         autoplay: true,
         intersection: {
+          once: true,
           inView: {
             autoplay: true,
             keyboard: true,

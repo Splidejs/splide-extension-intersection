@@ -1,6 +1,6 @@
 /*!
  * @splidejs/splide-extension-intersection
- * Version  : 0.1.0
+ * Version  : 0.1.1
  * License  : MIT
  * Copyright: 2021 Naotoshi Fujita
  */
@@ -68,65 +68,119 @@ function EventInterface(Splide22) {
   };
 }
 
+// node_modules/@splidejs/splide/src/js/utils/type/type.ts
+function isUndefined2(subject) {
+  return typeof subject === "undefined";
+}
+
+// node_modules/@splidejs/splide/src/js/utils/object/forOwn/forOwn.ts
+function forOwn2(object, iteratee, right) {
+  if (object) {
+    let keys = Object.keys(object);
+    keys = right ? keys.reverse() : keys;
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key !== "__proto__") {
+        if (iteratee(object[key], key) === false) {
+          break;
+        }
+      }
+    }
+  }
+  return object;
+}
+
 // src/js/constants/events.ts
 var EVENT_INTERSECTION = "intersection";
 var EVENT_INTERSECTION_IN = "intersection:in";
 var EVENT_INTERSECTION_OUT = "intersection:out";
 
+// src/js/extensions/Intersection/Handlers.ts
+function Handlers(Splide3) {
+  const { Components: Components2 } = Splide3;
+  return {
+    keyboard: {
+      enable() {
+        Components2.Keyboard.disable(false);
+      },
+      disable() {
+        Components2.Keyboard.disable(true);
+      }
+    },
+    autoplay: {
+      enable() {
+        if (Splide3.options.autoplay) {
+          Components2.Autoplay.play();
+        }
+      },
+      disable() {
+        Components2.Autoplay.pause();
+      }
+    },
+    autoScroll: {
+      enable() {
+        Components2.AutoScroll?.play();
+      },
+      disable() {
+        Components2.AutoScroll?.pause();
+      }
+    },
+    video: {
+      enable() {
+        Components2.Video?.play();
+      },
+      disable() {
+        Components2.Video?.pause();
+      }
+    }
+  };
+}
+
 // src/js/extensions/Intersection/Intersection.ts
 function Intersection(Splide3, Components2, options) {
   const { emit } = EventInterface(Splide3);
   const intersectionOptions = options.intersection || {};
+  const handlers = Handlers(Splide3);
   let observer;
   function mount() {
-    observer = new IntersectionObserver(onIntersect, {
-      root: intersectionOptions.root,
-      rootMargin: intersectionOptions.rootMargin,
-      threshold: intersectionOptions.threshold
-    });
-    observer.observe(Splide3.root);
+    if (window.IntersectionObserver) {
+      observer = new IntersectionObserver(onIntersect, {
+        root: intersectionOptions.root,
+        rootMargin: intersectionOptions.rootMargin,
+        threshold: intersectionOptions.threshold
+      });
+      observer.observe(Splide3.root);
+    }
   }
   function destroy() {
-    observer.disconnect();
-    observer = null;
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
   }
-  function onIntersect(entries) {
-    const [entry] = entries;
+  function onIntersect([entry]) {
     if (entry) {
       entry.isIntersecting ? inView(entry) : outView(entry);
       emit(EVENT_INTERSECTION, entry);
     }
   }
+  function handle(options2) {
+    forOwn2(options2, (value, key) => {
+      if (!isUndefined2(value)) {
+        const handler = handlers[key];
+        value ? handler.enable() : handler.disable();
+      }
+    });
+  }
   function inView(entry) {
-    const inOptions = intersectionOptions.inView || {};
-    if (inOptions.keyboard === true) {
-      Components2.Keyboard.disable(false);
-    }
-    if (options.autoplay && inOptions.autoplay === true) {
-      Components2.Autoplay.play();
-    }
-    if (inOptions.autoScroll === true) {
-      Components2.AutoScroll?.play();
-    }
-    if (inOptions.video === true) {
-      Components2.Video?.play();
-    }
+    handle(intersectionOptions.inView || {});
     emit(EVENT_INTERSECTION_IN, entry);
+    if (intersectionOptions.once) {
+      destroy();
+    }
   }
   function outView(entry) {
-    const outOptions = intersectionOptions.outView || {};
-    if (outOptions.keyboard === false) {
-      Components2.Keyboard.disable(true);
-    }
-    if (outOptions.autoplay === false) {
-      Components2.Autoplay.pause();
-    }
-    if (outOptions.autoScroll === false) {
-      Components2.AutoScroll?.pause();
-    }
-    if (outOptions.video === false) {
-      Components2.Video?.pause();
-    }
+    handle(intersectionOptions.outView || {});
     emit(EVENT_INTERSECTION_OUT, entry);
   }
   return {

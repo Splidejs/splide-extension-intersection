@@ -1,6 +1,6 @@
 /*!
  * @splidejs/splide-extension-intersection
- * Version  : 0.1.0
+ * Version  : 0.1.1
  * License  : MIT
  * Copyright: 2021 Naotoshi Fujita
  */
@@ -82,33 +82,109 @@
     };
   }
 
+  function isUndefined2(subject) {
+    return typeof subject === "undefined";
+  }
+
+  function forOwn2(object, iteratee, right) {
+    if (object) {
+      var keys = Object.keys(object);
+      keys = right ? keys.reverse() : keys;
+
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+
+        if (key !== "__proto__") {
+          if (iteratee(object[key], key) === false) {
+            break;
+          }
+        }
+      }
+    }
+
+    return object;
+  }
+
   var EVENT_INTERSECTION = "intersection";
   var EVENT_INTERSECTION_IN = "intersection:in";
   var EVENT_INTERSECTION_OUT = "intersection:out";
+
+  function Handlers(Splide3) {
+    var Components2 = Splide3.Components;
+    return {
+      keyboard: {
+        enable: function enable() {
+          Components2.Keyboard.disable(false);
+        },
+        disable: function disable() {
+          Components2.Keyboard.disable(true);
+        }
+      },
+      autoplay: {
+        enable: function enable() {
+          if (Splide3.options.autoplay) {
+            Components2.Autoplay.play();
+          }
+        },
+        disable: function disable() {
+          Components2.Autoplay.pause();
+        }
+      },
+      autoScroll: {
+        enable: function enable() {
+          var _a;
+
+          (_a = Components2.AutoScroll) == null ? void 0 : _a.play();
+        },
+        disable: function disable() {
+          var _a;
+
+          (_a = Components2.AutoScroll) == null ? void 0 : _a.pause();
+        }
+      },
+      video: {
+        enable: function enable() {
+          var _a;
+
+          (_a = Components2.Video) == null ? void 0 : _a.play();
+        },
+        disable: function disable() {
+          var _a;
+
+          (_a = Components2.Video) == null ? void 0 : _a.pause();
+        }
+      }
+    };
+  }
 
   function Intersection(Splide3, Components2, options) {
     var _EventInterface = EventInterface(Splide3),
         emit = _EventInterface.emit;
 
     var intersectionOptions = options.intersection || {};
+    var handlers = Handlers(Splide3);
     var observer;
 
     function mount() {
-      observer = new IntersectionObserver(onIntersect, {
-        root: intersectionOptions.root,
-        rootMargin: intersectionOptions.rootMargin,
-        threshold: intersectionOptions.threshold
-      });
-      observer.observe(Splide3.root);
+      if (window.IntersectionObserver) {
+        observer = new IntersectionObserver(onIntersect, {
+          root: intersectionOptions.root,
+          rootMargin: intersectionOptions.rootMargin,
+          threshold: intersectionOptions.threshold
+        });
+        observer.observe(Splide3.root);
+      }
     }
 
     function destroy() {
-      observer.disconnect();
-      observer = null;
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
     }
 
-    function onIntersect(entries) {
-      var entry = entries[0];
+    function onIntersect(_ref) {
+      var entry = _ref[0];
 
       if (entry) {
         entry.isIntersecting ? inView(entry) : outView(entry);
@@ -116,51 +192,26 @@
       }
     }
 
+    function handle(options2) {
+      forOwn2(options2, function (value, key) {
+        if (!isUndefined2(value)) {
+          var handler = handlers[key];
+          value ? handler.enable() : handler.disable();
+        }
+      });
+    }
+
     function inView(entry) {
-      var _a, _b;
-
-      var inOptions = intersectionOptions.inView || {};
-
-      if (inOptions.keyboard === true) {
-        Components2.Keyboard.disable(false);
-      }
-
-      if (options.autoplay && inOptions.autoplay === true) {
-        Components2.Autoplay.play();
-      }
-
-      if (inOptions.autoScroll === true) {
-        (_a = Components2.AutoScroll) == null ? void 0 : _a.play();
-      }
-
-      if (inOptions.video === true) {
-        (_b = Components2.Video) == null ? void 0 : _b.play();
-      }
-
+      handle(intersectionOptions.inView || {});
       emit(EVENT_INTERSECTION_IN, entry);
+
+      if (intersectionOptions.once) {
+        destroy();
+      }
     }
 
     function outView(entry) {
-      var _a, _b;
-
-      var outOptions = intersectionOptions.outView || {};
-
-      if (outOptions.keyboard === false) {
-        Components2.Keyboard.disable(true);
-      }
-
-      if (outOptions.autoplay === false) {
-        Components2.Autoplay.pause();
-      }
-
-      if (outOptions.autoScroll === false) {
-        (_a = Components2.AutoScroll) == null ? void 0 : _a.pause();
-      }
-
-      if (outOptions.video === false) {
-        (_b = Components2.Video) == null ? void 0 : _b.pause();
-      }
-
+      handle(intersectionOptions.outView || {});
       emit(EVENT_INTERSECTION_OUT, entry);
     }
 

@@ -1,5 +1,5 @@
 import { BaseComponent, Components, Options, Splide } from '@splidejs/splide';
-import { IntersectionOptions } from '../../types/options';
+import { IntersectionOptions } from '../../types';
 /**
  * Lets the compiler know this component.
  */

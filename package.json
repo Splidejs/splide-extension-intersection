@@ -1,7 +1,7 @@
 {
   "name": "@splidejs/splide-extension-intersection",
-  "version": "0.1.0",
-  "description": "The Splide extension for adding Intersection Observer to the slider.",
+  "version": "0.1.1",
+  "description": "The Splide extension for observing the intersection of the slider with the viewport.",
   "author": "Naotoshi Fujita",
   "license": "MIT",
   "main": "dist/js/splide-extension-intersection.cjs.js",

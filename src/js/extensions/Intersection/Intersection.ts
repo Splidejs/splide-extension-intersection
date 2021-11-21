@@ -1,8 +1,8 @@
 import { BaseComponent, Components, EventInterface, Options, Splide } from '@splidejs/splide';
-import { AutoScrollComponent } from '@splidejs/splide-extension-auto-scroll';
-import { VideoComponent } from '@splidejs/splide-extension-video/dist/types/extensions/Video/Video';
+import { forOwn, isUndefined } from '@splidejs/splide/src/js/utils';
 import { EVENT_INTERSECTION, EVENT_INTERSECTION_IN, EVENT_INTERSECTION_OUT } from '../../constants/events';
-import { IntersectionOptions } from '../../types/options';
+import { IntersectionOptions, IntersectionViewOptions } from '../../types';
+import { Handlers } from './Handlers';
 
 
 /**
@@ -46,6 +46,7 @@ export interface IntersectionComponent extends BaseComponent {
 export function Intersection( Splide: Splide, Components: Components, options: Options ): IntersectionComponent {
   const { emit } = EventInterface( Splide );
   const intersectionOptions = options.intersection || {};
+  const handlers = Handlers( Splide );
 
   /**
    * Holds the active IntersectionObserver instance.
@@ -56,21 +57,25 @@ export function Intersection( Splide: Splide, Components: Components, options: O
    * Called when the component is mounted.
    */
   function mount(): void {
-    observer = new IntersectionObserver( onIntersect, {
-      root      : intersectionOptions.root,
-      rootMargin: intersectionOptions.rootMargin,
-      threshold : intersectionOptions.threshold,
-    } );
+    if ( window.IntersectionObserver ) {
+      observer = new IntersectionObserver( onIntersect, {
+        root      : intersectionOptions.root,
+        rootMargin: intersectionOptions.rootMargin,
+        threshold : intersectionOptions.threshold,
+      } );
 
-    observer.observe( Splide.root );
+      observer.observe( Splide.root );
+    }
   }
 
   /**
    * Called when the Splide instance is destroyed.
    */
   function destroy(): void {
-    observer.disconnect();
-    observer = null;
+    if ( observer ) {
+      observer.disconnect();
+      observer = null;
+    }
   }
 
   /**
@@ -78,13 +83,25 @@ export function Intersection( Splide: Splide, Components: Components, options: O
    *
    * @param entries - An array with entries.
    */
-  function onIntersect( entries: IntersectionObserverEntry[] ): void {
-    const [ entry ] = entries;
-
+  function onIntersect( [ entry ]: IntersectionObserverEntry[] ): void {
     if ( entry ) {
       entry.isIntersecting ? inView( entry ) : outView( entry );
       emit( EVENT_INTERSECTION, entry );
     }
+  }
+
+  /**
+   * According to the provided view options, call the proper hanlder function.
+   *
+   * @param options - View options.
+   */
+  function handle( options: IntersectionViewOptions ): void {
+    forOwn( options, ( value, key ) => {
+      if ( ! isUndefined( value ) ) {
+        const handler = handlers[ key ];
+        value ? handler.enable() : handler.disable();
+      }
+    } );
   }
 
   /**
@@ -93,25 +110,12 @@ export function Intersection( Splide: Splide, Components: Components, options: O
    * @param entry - An IntersectionObserverEntry object.
    */
   function inView( entry: IntersectionObserverEntry ): void {
-    const inOptions = intersectionOptions.inView || {};
-
-    if ( inOptions.keyboard === true ) {
-      Components.Keyboard.disable( false );
-    }
-
-    if ( options.autoplay && inOptions.autoplay === true ) {
-      Components.Autoplay.play();
-    }
-
-    if ( inOptions.autoScroll === true ) {
-      ( Components.AutoScroll as AutoScrollComponent )?.play();
-    }
-
-    if ( inOptions.video === true ) {
-      ( Components.Video as VideoComponent )?.play();
-    }
-
+    handle( intersectionOptions.inView || {} );
     emit( EVENT_INTERSECTION_IN, entry );
+
+    if ( intersectionOptions.once ) {
+      destroy();
+    }
   }
 
   /**
@@ -120,24 +124,7 @@ export function Intersection( Splide: Splide, Components: Components, options: O
    * @param entry - An IntersectionObserverEntry object.
    */
   function outView( entry: IntersectionObserverEntry ): void {
-    const outOptions = intersectionOptions.outView || {};
-
-    if ( outOptions.keyboard === false ) {
-      Components.Keyboard.disable( true );
-    }
-
-    if ( outOptions.autoplay === false ) {
-      Components.Autoplay.pause();
-    }
-
-    if ( outOptions.autoScroll === false ) {
-      ( Components.AutoScroll as AutoScrollComponent )?.pause();
-    }
-
-    if ( outOptions.video === false ) {
-      ( Components.Video as VideoComponent )?.pause();
-    }
-
+    handle( intersectionOptions.outView || {} );
     emit( EVENT_INTERSECTION_OUT, entry );
   }
 
