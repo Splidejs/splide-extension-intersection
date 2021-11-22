@@ -16,7 +16,7 @@
         height: 300,
         autoplay: true,
         intersection: {
-          once: true,
+          // once: true,
           inView: {
             autoplay: true,
             keyboard: true,
@@ -49,8 +49,8 @@
 
       splide02.mount( window.splide.Extensions );
 
-      splide02.on( 'intersection:in', () => console.log( 'splide02 in' ) );
-      splide02.on( 'intersection:out', () => console.log( 'splide02 out' ) );
+      splide02.on( 'intersection:in', entry => console.log( 'splide02 in', entry.target ) );
+      splide02.on( 'intersection:out', entry => console.log( 'splide02 out', entry.target ) );
 		} );
 	</script>
 
