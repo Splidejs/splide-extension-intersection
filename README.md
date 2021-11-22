@@ -30,6 +30,13 @@ $ npm install @splidejs/splide-extension-intersection
 
 Or download files from the dist directory.
 
+
+## Caveats
+
+This extension does not support IE because of Intersection Observer.
+You need to install a polyfill to make it work in IE.
+
+
 ## License
 Splide is released under the MIT license.
 © 2021 Naotoshi Fujita
