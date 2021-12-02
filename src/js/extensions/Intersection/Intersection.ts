@@ -41,7 +41,7 @@ export interface IntersectionComponent extends BaseComponent {
  * @param Components - A collection of components.
  * @param options    - Options.
  *
- * @return An AutoScroll component object.
+ * @return An Intersection component object.
  */
 export function Intersection( Splide: Splide, Components: Components, options: Options ): IntersectionComponent {
   const { emit } = EventInterface( Splide );
