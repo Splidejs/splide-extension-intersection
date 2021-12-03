@@ -32,7 +32,7 @@ export interface IntersectionComponent extends BaseComponent {
  * @param Components - A collection of components.
  * @param options    - Options.
  *
- * @return An AutoScroll component object.
+ * @return An Intersection component object.
  */
 export declare function Intersection(Splide: Splide, Components: Components, options: Options): IntersectionComponent;
 //# sourceMappingURL=../../../../src/js/extensions/Intersection/Intersection.d.ts.map

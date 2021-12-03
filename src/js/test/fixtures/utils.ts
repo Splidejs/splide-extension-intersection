@@ -24,7 +24,7 @@ export function generateSlides( length: number ): string {
 export function init( options?: Options ): Splide {
   document.body.innerHTML = buildHtml( 10 );
   const splide = new Splide( '#splide', options );
-  splide.mount( { AutoScroll: Intersection } );
+  splide.mount( { Intersection } );
   return splide;
 }
 
