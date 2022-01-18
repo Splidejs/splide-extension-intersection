@@ -1,8 +1,8 @@
 /*!
  * @splidejs/splide-extension-intersection
- * Version  : 0.1.3
+ * Version  : 0.1.4
  * License  : MIT
- * Copyright: 2021 Naotoshi Fujita
+ * Copyright: 2022 Naotoshi Fujita
  */
 'use strict';
 
@@ -190,9 +190,9 @@ function Intersection(Splide3, Components2, options) {
 }
 /*!
  * Splide.js
- * Version  : 3.6.9
+ * Version  : 3.6.10
  * License  : MIT
- * Copyright: 2021 Naotoshi Fujita
+ * Copyright: 2022 Naotoshi Fujita
  */
 
 exports.Intersection = Intersection;
