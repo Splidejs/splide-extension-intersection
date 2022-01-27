@@ -1,6 +1,6 @@
 import { Splide } from '@splidejs/splide';
 import { AutoScrollComponent } from '@splidejs/splide-extension-auto-scroll';
-import { VideoComponent } from '@splidejs/splide-extension-video/dist/types/extensions/Video/Video';
+import { VideoComponent } from '@splidejs/splide-extension-video';
 import { IntersectionViewOptions, ViewOptionHandler } from '../../types';
 
 
@@ -37,19 +37,23 @@ export function Handlers( Splide: Splide ): Record<keyof IntersectionViewOptions
 
     autoScroll: {
       enable(): void {
-        ( Components.AutoScroll as AutoScrollComponent )?.play();
+        const AutoScroll = Components.AutoScroll as AutoScrollComponent;
+        AutoScroll && AutoScroll.play();
       },
       disable(): void {
-        ( Components.AutoScroll as AutoScrollComponent )?.pause();
+        const AutoScroll = Components.AutoScroll as AutoScrollComponent;
+        AutoScroll && AutoScroll.pause();
       },
     },
 
     video: {
       enable(): void {
-        ( Components.Video as VideoComponent )?.play();
+        const Video = Components.Video as VideoComponent;
+        Video && Video.play();
       },
       disable(): void {
-        ( Components.Video as VideoComponent )?.pause();
+        const Video = Components.Video as VideoComponent;
+        Video && Video.pause();
       },
     },
   };

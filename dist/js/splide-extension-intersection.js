@@ -1,6 +1,6 @@
 /*!
  * @splidejs/splide-extension-intersection
- * Version  : 0.1.5
+ * Version  : 0.1.6
  * License  : MIT
  * Copyright: 2022 Naotoshi Fujita
  */
@@ -132,26 +132,22 @@
       },
       autoScroll: {
         enable: function enable() {
-          var _a;
-
-          (_a = Components2.AutoScroll) == null ? void 0 : _a.play();
+          var AutoScroll = Components2.AutoScroll;
+          AutoScroll && AutoScroll.play();
         },
         disable: function disable() {
-          var _a;
-
-          (_a = Components2.AutoScroll) == null ? void 0 : _a.pause();
+          var AutoScroll = Components2.AutoScroll;
+          AutoScroll && AutoScroll.pause();
         }
       },
       video: {
         enable: function enable() {
-          var _a;
-
-          (_a = Components2.Video) == null ? void 0 : _a.play();
+          var Video = Components2.Video;
+          Video && Video.play();
         },
         disable: function disable() {
-          var _a;
-
-          (_a = Components2.Video) == null ? void 0 : _a.pause();
+          var Video = Components2.Video;
+          Video && Video.pause();
         }
       }
     };

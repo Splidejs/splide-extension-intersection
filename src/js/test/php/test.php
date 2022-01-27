@@ -34,6 +34,7 @@
       splide01.on( 'intersection:out', () => console.log( 'splide01 out' ) );
 
       var splide02 = new Splide( '#splide02', {
+        type: 'loop',
         height: 400,
         intersection: {
           inView: {
